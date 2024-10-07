@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Print Consignment</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+<!-- Include html2canvas and jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+<style>
+    @media print {
+    .btn-download {
+        display: none; /* Hide button during printing */
+    }
+    .btn-print {
+        display: none; /* Hide print button during print */
+    }
+
+    /* Default settings (assumed to be A4) */
+    @page {
+        size: A4;
+            margin: 58px 40px 40px; /* Top margin: 50px, Right margin: 10px, Bottom margin: 10px, Left margin: 10px */
+    }
+
+    body {
+        font-size: 17px; /* Smaller font size for print */
+        padding: 0; /* No padding in body */
+        box-sizing: border-box; /* Ensure padding and border are included in width/height calculations */
+    }
+
+ #table-wrapper {
+            margin: 0; /* Reset margins here */
+            padding: 87px 0; /* Add padding to the top and bottom of the table wrapper */
+            border: 1px solid transparent; /* Prevent margin collapse */
+        }
+   #table-wrapper1 {
+            margin: 0; /* Reset margins here */
+            padding: 87px 0; /* Add padding to the top and bottom of the table wrapper */
+            border: 1px solid transparent; /* Prevent margin collapse */
+        }
+        #table-wrapper2{
+        padding: 106px 0 0 0;
+        }
+
+#table-wrapper, #table-wrapper1, #table-wrapper2 {
+    page-break-inside: avoid; /* Avoid breaking tables across pages */
+}
+
+
+@media print {
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        padding: 0;
+        background-color: #000000; /* Dark background for the table */
+        color: #000000; /* Light text color (off-white) */
+    }
+
+    td, th {
+        border: 2px solid #000000; /* Light gray borders */
+        padding: 5px;
+        margin: 0;
+        word-wrap: break-word;
+        overflow: hidden;
+        background-color: #000000; /* Slightly lighter background for cells */
+        color: #000000; /* Light text color in cells */
+    }
+
+    .table th {
+        background-color: #000000; /* Darker background for table headers */
+        color: #000000; /* Lighter text for headers */
+    }
+}
+
+
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        padding: 0; /* No padding for tables */
+    }
+
+    td, th {
+        border: 2px solid black;
+        padding: 0; /* No padding in table cells */
+        margin: 0; /* No margin in table cells */
+        word-wrap: break-word; /* Wrap text inside cells */
+        overflow: hidden; /* Prevent overflow */
+    }
+}
+.container {
+            page-break-inside: avoid; /* Prevent page breaks inside containers */
+        }
+
+        .invoice-header {
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .flex-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .flex-container img {
+            max-width: 60px; /* Adjust image size */
+            height: auto;
+        }
+
+
+        .table th, .table td {
+                text-align: left;
+            vertical-align: top;
+        }
+    .flex-container {
+    display: flex;
+    align-items: flex-start; /* Align items at the start of the container (top) */
+    justify-content: flex-start; /* Align items to the start of the container (left) */
+}
+.fixed-td {
+    padding: 0;
+    box-sizing: border-box;
+}
+.flex-container {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* Ensure image is on the left and content on the right */
+    gap: 10px; /* Add space between the image and content */
+}
+</style>
+</head>
+<body>
+<script>
+    async function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        const pdf = new jsPDF('p', 'pt', 'a4');
+
+        const invoiceContent = document.getElementById('invoice-content');
+
+        await html2canvas(invoiceContent, {
+            scale: 2
+        }).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            const imgWidth = pdf.internal.pageSize.getWidth();
+            const imgHeight = canvas.height * imgWidth / canvas.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, imgWidth, imgHeight);
+            pdf.save('invoice.pdf');
+        }).catch(error => {
+            console.error('Error generating PDF:', error);
+        });
+    }
+</script>
+
+
+    <a href="javascript:window.print()" class="btn btn-danger btn-print">Print</a>
+<button class="btn-download btn btn-primary" onclick="downloadPDF()">Download PDF</button>
+
+    <div class="container invoice" id="invoice-content">
+            <div id="table-wrapper">
+
+        <table class="table-bordered">
+            <tbody>
+                {% for track_id, details in grouped_userdata.items %}
+
+                <tr>
+                    <td colspan="2"><strong>LR No.: {{ track_id }}</strong></td>
+                    <td colspan="2"><strong>{{ details.date }}</strong></td>
+                    <td><strong>{{ details.time }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>From: {{ details.route_from }}</strong></td>
+                    <td colspan="3"><strong>To: {{ details.route_to }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Consignor:</strong> {{ details.sender_name }}<br>
+                        Mobile No: {{ details.sender_mobile }}<br>
+                        Address: {{ details.sender_address }}</td>
+                    <td colspan="3"><strong>Consignee:</strong> {{ details.receiver_name }}<br>
+                        Mobile: {{ details.receiver_mobile }}<br>
+                        Address: {{ details.receiver_address }}</td>
+                </tr>
+                <tr>
+                    <td><strong>QTY</strong></td>
+                    <td class="description-cell"><strong>DESCRIPTION OF GOODS</strong></td>
+                    <td><strong>WEIGHT KG</strong></td>
+                    <td><strong>CHARGED</strong></td>
+                    <td><strong>AMOUNT</strong></td>
+                </tr>
+                <tr>
+                    <td>{{ details.pieces }}</td>
+                    <td>{{ details.products }}</td>
+                    <td>{{ details.weight }}</td>
+                    <td>
+                        Freight: <br>
+                        Hamali: <br>
+                        Door Charge: <br>
+                        ST Charge:<br/>
+                    </td>
+                    <td style="text-align: right;">
+                        {{ details.freight }}<br>
+                        {{ details.hamali }}<br>
+                        {{ details.door_charge }}<br>
+                        {{ details.st_charge }}<br>
+                    </td>
+                </tr>
+                <tr>
+                    <td>E-way:</td>
+                    <td>{{ details.eway_bill }}</td>
+                    <td></td>
+                    <td><strong>Total</strong></td>
+                    <td style="text-align: right;"><strong>{{ details.total_cost }}</strong></td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </div>
+
+    <div class="container">
+            <div id="table-wrapper1">
+
+        <table class="table-bordered">
+            <tbody>
+                {% for track_id, details in grouped_userdata.items %}
+
+                <tr>
+                    <td colspan="2"><strong>LR No.: {{ track_id }}</strong></td>
+                    <td colspan="2"><strong>{{ details.date }}</strong></td>
+                    <td><strong>{{ details.time }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>From: {{ details.route_from }}</strong></td>
+                    <td colspan="3"><strong>To: {{ details.route_to }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Consignor:</strong> {{ details.sender_name }}<br>
+                        Mobile No: {{ details.sender_mobile }}<br>
+                        Address: {{ details.sender_address }}</td>
+                    <td colspan="3"><strong>Consignee:</strong> {{ details.receiver_name }}<br>
+                        Mobile: {{ details.receiver_mobile }}<br>
+                        Address: {{ details.receiver_address }}</td>
+                </tr>
+                <tr>
+                    <td><strong>QTY</strong></td>
+                    <td class="description-cell"><strong>DESCRIPTION OF GOODS</strong></td>
+                    <td><strong>WEIGHT KG</strong></td>
+                    <td><strong>CHARGED</strong></td>
+                    <td><strong>AMOUNT</strong></td>
+                </tr>
+                <tr>
+                    <td>{{ details.pieces }}</td>
+                    <td>{{ details.products }}</td>
+                    <td>{{ details.weight }}</td>
+                    <td>
+                        Freight: <br>
+                        Hamali: <br>
+                        Door Charge: <br>
+                        ST Charge:<br/>
+                    </td>
+                    <td style="text-align: right;">
+                        {{ details.freight }}<br>
+                        {{ details.hamali }}<br>
+                        {{ details.door_charge }}<br>
+                        {{ details.st_charge }}<br>
+                    </td>
+                </tr>
+                <tr>
+                    <td>E-way:</td>
+                    <td>{{ details.eway_bill }}</td>
+                    <td></td>
+                    <td><strong>Total</strong></td>
+                    <td style="text-align: right;"><strong>{{ details.total_cost }}</strong></td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </div>
+
+    <div class="container">
+            <div id="table-wrapper2">
+
+        <table class="table-bordered">
+            <tbody>
+                {% for track_id, details in grouped_userdata.items %}
+
+                <tr>
+                    <td colspan="2"><strong>LR No.: {{ track_id }}</strong></td>
+                    <td colspan="2"><strong>{{ details.date }}</strong></td>
+                    <td><strong>{{ details.time }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>From: {{ details.route_from }}</strong></td>
+                    <td colspan="3"><strong>To: {{ details.route_to }}</strong></td>
+                </tr>
+                <tr>
+                    <td colspan="2"><strong>Consignor:</strong> {{ details.sender_name }}<br>
+                        Mobile No: {{ details.sender_mobile }}<br>
+                        Address: {{ details.sender_address }}</td>
+                    <td colspan="3"><strong>Consignee:</strong> {{ details.receiver_name }}<br>
+                        Mobile: {{ details.receiver_mobile }}<br>
+                        Address: {{ details.receiver_address }}</td>
+                </tr>
+                <tr>
+                    <td><strong>QTY</strong></td>
+                    <td class="description-cell"><strong>DESCRIPTION OF GOODS</strong></td>
+                    <td><strong>WEIGHT KG</strong></td>
+                    <td><strong>CHARGED</strong></td>
+                    <td><strong>AMOUNT</strong></td>
+                </tr>
+                <tr>
+                    <td>{{ details.pieces }}</td>
+                    <td>{{ details.products }}</td>
+                    <td>{{ details.weight }}</td>
+                    <td>
+                        Freight: <br>
+                        Hamali: <br>
+                        Door Charge: <br>
+                        ST Charge:<br/>
+                    </td>
+                    <td style="text-align: right;">
+                        {{ details.freight }}<br>
+                        {{ details.hamali }}<br>
+                        {{ details.door_charge }}<br>
+                        {{ details.st_charge }}<br>
+                    </td>
+                </tr>
+                <tr>
+                    <td>E-way:</td>
+                    <td>{{ details.eway_bill }}</td>
+                    <td></td>
+                    <td><strong>Total</strong></td>
+                    <td style="text-align: right;"><strong>{{ details.total_cost }}</strong></td>
+                </tr>
+
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    </div>
+</body>
+</html>

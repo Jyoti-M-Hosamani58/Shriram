@@ -1,0 +1,176 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="author" content="Untree.co" />
+    <link rel="shortcut icon" href="{% static 'favicon.png' %}" />
+
+    <meta name="description" content="" />
+    <meta name="keywords" content="bootstrap, bootstrap5" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+    <link rel="stylesheet" href="{% static 'fonts/icomoon/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'fonts/flaticon/font/flaticon.css' %}" />
+
+    <link rel="stylesheet" href="{% static 'css/tiny-slider.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/aos.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+
+    <title>Consignment</title>
+    <style>
+        /* CSS for horizontal scrolling in normal view */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        table {
+            width: 100%;
+            min-width: 600px;
+            table-layout: auto; /* Flexible layout */
+            border-collapse: collapse;
+        }
+
+        table, th, td {
+            border: 1px solid black;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        .filter-form {
+            margin-bottom: 20px;
+        }
+
+        .filter-form input {
+            margin-right: 10px;
+        }
+
+        /* Ensure long content wraps properly */
+        td {
+            white-space: normal; /* Allow content to wrap */
+            word-wrap: break-word; /* Break long words if necessary */
+            word-break: break-word; /* Ensure long words break in both normal and print views */
+            overflow-wrap: break-word; /* Handle overflow properly */
+        }
+
+        /* For print view */
+        @media print {
+            body * {
+                visibility: hidden; /* Hide everything outside the table */
+            }
+            .table-container, .table-container * {
+                visibility: visible; /* Show the table content */
+            }
+            .table-container {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+            }
+            table {
+                width: 100%;
+                table-layout: auto;
+                border-collapse: collapse;
+            }
+            td, th {
+                white-space: normal; /* Allow wrapping in print */
+                word-wrap: break-word;
+                word-break: break-word;
+                overflow-wrap: break-word;
+            }
+        }
+    </style>
+
+</head>
+<body>
+    <div class="site-mobile-menu site-navbar-target">
+        <div class="site-mobile-menu-header">
+            <div class="site-mobile-menu-close">
+                <span class="icofont-close js-menu-toggle"></span>
+            </div>
+        </div>
+        <div class="site-mobile-menu-body"></div>
+    </div>
+
+    {% include 'index_menu.html' %}
+
+    <br><br><br>
+
+    <div class="container">
+        <div class="row justify-content-center align-items-center">
+          <div class="col-lg-9 text-center mt-5">
+            <h1 class="heading" data-aos="fade-up">Unloaded List</h1>
+          </div>
+        </div>
+      </div>
+
+    <!-- Print button -->
+    <a href="javascript:window.print()" class="btn btn-danger btn-print">Print</a>
+
+    <!-- Table container with horizontal scrolling in normal view -->
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>SI. No.</th>
+                    <th>Lr No.</th>
+                    <th>Date</th>
+                    <th>Branch</th>
+                    <th>Consignee Name</th>
+                    <th>Product Description</th>
+                    <th>Pieces</th>
+                    <th>Total Cost</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for consignment in consignments %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ consignment.track_id }}</td>
+                    <td>{{ consignment.date }}</td>
+                    <td>{{ consignment.branch }}</td>
+                    <td>{{ consignment.receiver_name }}</td>
+                    <td>{{ consignment.desc_product }}</td>
+                    <td>{{ consignment.pieces }}</td>
+                    <td>{{ consignment.total_cost }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8">No consignments found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="no-print">
+        <div class="row mt-5">
+            <div class="col-12 text-center"></div>
+        </div>
+        <div id="overlayer"></div>
+        <div class="loader">
+            <div class="spinner-border" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+        </div>
+        <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+        <script src="{% static 'js/tiny-slider.js' %}"></script>
+        <script src="{% static 'js/aos.js' %}"></script>
+        <script src="{% static 'js/navbar.js' %}"></script>
+        <script src="{% static 'js/counter.js' %}"></script>
+        <script src="{% static 'js/custom.js' %}"></script>
+    </div>
+</body>
+</html>
